@@ -3,21 +3,19 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config, conversation, dataset as ds_mod, generation
-from src.artifacts import save_json_atomic, utc_timestamp
+from src.artifacts import load_json, save_json_atomic, utc_timestamp
 
 
 def _load_master(path: Path) -> list[dict]:
     if not path.exists():
         return []
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json(path)
 
 
 def _item_key(call_id, turn_id) -> tuple:

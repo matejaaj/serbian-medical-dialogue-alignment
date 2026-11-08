@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from . import config, training as training_mod
+from .artifacts import load_json
 
 
 def prepare_dpo_dataset(pairs_path: Path, validation_fraction: float, split_seed: int):
     """Return train and eval pairs as conversations; TRL applies the chat template."""
     from datasets import Dataset
 
-    payload = json.loads(pairs_path.read_text(encoding="utf-8"))
+    payload = load_json(pairs_path)
     rows = []
     for pair in payload["pairs"]:
         rows.append({

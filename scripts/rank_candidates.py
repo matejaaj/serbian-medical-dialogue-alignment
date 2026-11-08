@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import itertools
-import json
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -12,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config, judge as judge_mod
-from src.artifacts import save_json_atomic, utc_timestamp
+from src.artifacts import load_json, save_json_atomic, utc_timestamp
 
 
 RANKING_METHOD = "copeland_with_swap"
@@ -20,8 +19,7 @@ CHARS_PER_TOKEN = 4  # Approximation, not tokenizer-based counting.
 
 
 def _load_master(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json(path)
 
 
 def _pair_ids(count: int) -> list[tuple[int, int]]:

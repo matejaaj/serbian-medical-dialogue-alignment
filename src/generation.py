@@ -111,6 +111,7 @@ class OllamaGenerator:
         self.model_name = model["weights"]
         self.generation = generation
         self.seed = seed
+        self.url = model.get("url") or generation.get("ollama_url") or "http://127.0.0.1:11434/api/generate"
         # Prompts are rendered with the HF chat template, as for HF models, and sent raw.
         self.tokenizer = AutoTokenizer.from_pretrained(model["tokenizer"])
 
@@ -137,7 +138,7 @@ class OllamaGenerator:
                 "num_ctx": self.generation["max_input_length"] + self.generation["max_new_tokens"],
             },
         }
-        response = self.session.post("http://127.0.0.1:11434/api/generate", json=payload, timeout=600)
+        response = self.session.post(self.url, json=payload, timeout=600)
         response.raise_for_status()
         return response.json()["response"].strip()
 

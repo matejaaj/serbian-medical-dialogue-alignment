@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config
-from src.artifacts import save_json_atomic
+from src.artifacts import load_json, save_json_atomic
 
 
 def main() -> None:
@@ -23,11 +22,13 @@ def main() -> None:
     master: dict[tuple, dict] = {}
 
     for in_path in inputs:
-        with open(in_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = load_json(in_path)
 
-        rows = data["predictions"]
-        model_key = data["model"]
+        try:
+            rows = data["predictions"]
+            model_key = data["model"]
+        except (KeyError, TypeError) as e:
+            raise ValueError(f"{in_path}: invalid predictions file (missing {e!s}); expected keys 'model' and 'predictions'") from e
         if any(model_key in item["predictions"] for item in master.values()):
             raise ValueError(f"{in_path}: model {model_key!r} was already merged from another input")
 

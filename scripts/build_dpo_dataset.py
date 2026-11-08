@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config, judge as judge_mod
-from src.artifacts import save_json_atomic, utc_timestamp
+from src.artifacts import load_json, save_json_atomic, utc_timestamp
 
 
 def _load_master(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json(path)
 
 
 def main() -> None:

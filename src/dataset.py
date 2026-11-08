@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import json
 import random
 from pathlib import Path
 
 from . import config
+from .artifacts import load_json
 
 
 SPEAKER_ROLES = {"POZIVALAC": "user", "SESTRA": "assistant"}
@@ -85,7 +85,7 @@ def load_split():
     from datasets import load_from_disk
 
     dataset = load_from_disk(str(config.DATASET_DIR))
-    split = json.loads(config.SPLIT_PATH.read_text())
+    split = load_json(config.SPLIT_PATH)
     train_ids, val_ids = set(split["train"]), set(split["validation"])
     if train_ids & val_ids or train_ids | val_ids != set(dataset["call_id"]):
         raise ValueError("Saved split does not match the dataset or contains overlapping calls")

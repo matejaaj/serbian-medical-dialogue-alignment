@@ -233,6 +233,13 @@ class OllamaBackend:
         m = re.search(r'"obrazlozenje"\s*:\s*"(.*)"\s*\}?\s*$', raw_text, re.DOTALL)
         return m.group(1).strip() if m else ""
 
+    @staticmethod
+    def _extract_last_quoted_field(raw_text: str, field: str) -> str | None:
+        """Recover a quoted field by taking the last match (useful when text mentions the key)."""
+        import re
+        matches = re.findall(r'"' + re.escape(field) + r'"\s*:\s*"([^"]*)"', raw_text)
+        return matches[-1] if matches else None
+
     def _parse_response(self, raw_text: str) -> tuple[str, str]:
         """Return raw label and reason, falling back to regex for malformed JSON."""
         import json
@@ -242,7 +249,7 @@ class OllamaBackend:
             label = parsed.get("ocena") if isinstance(parsed, dict) else None
             reason = parsed.get("obrazlozenje", "") if isinstance(parsed, dict) else ""
         except json.JSONDecodeError:
-            label = self._extract_field(raw_text, "ocena")
+            label = self._extract_last_quoted_field(raw_text, "ocena") or self._extract_field(raw_text, "ocena")
             reason = self._extract_obrazlozenje(raw_text)
 
         label = label.strip() if isinstance(label, str) else ""
@@ -282,8 +289,8 @@ class OllamaBackend:
             choice = parsed.get("izbor") if isinstance(parsed, dict) else None
             reason = parsed.get("analiza", "") if isinstance(parsed, dict) else ""
         except json.JSONDecodeError:
-            choice = self._extract_field(raw_text, "izbor")
-            reason = self._extract_field(raw_text, "analiza") or ""
+            choice = self._extract_last_quoted_field(raw_text, "izbor") or self._extract_field(raw_text, "izbor")
+            reason = self._extract_last_quoted_field(raw_text, "analiza") or self._extract_field(raw_text, "analiza") or ""
 
         choice = choice.strip() if isinstance(choice, str) else ""
         reason = reason if isinstance(reason, str) else str(reason)

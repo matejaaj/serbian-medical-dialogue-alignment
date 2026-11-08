@@ -3,19 +3,18 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config
+from src.artifacts import load_json, save_json_atomic
 from src.judge import LABEL_SCORE, RUBRICS, normalize_label
 
 
 def _load_items(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json(path)
 
 
 def _mean(values: list) -> "float | None":
@@ -109,7 +108,6 @@ def main() -> None:
         print("No evaluations in the input.")
         return
 
-    from src.artifacts import save_json_atomic
     save_json_atomic(rows, out / "metrics.json")
     metric_fields = columns[5::2]
     for row in rows:

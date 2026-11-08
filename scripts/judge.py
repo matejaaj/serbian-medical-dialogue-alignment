@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -11,12 +10,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config, judge as judge_mod
-from src.artifacts import save_json_atomic
+from src.artifacts import load_json, save_json_atomic
 
 
 def _load_items(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+    return load_json(path)
 
 
 def main() -> None:

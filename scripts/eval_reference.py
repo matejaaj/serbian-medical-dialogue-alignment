@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src import config, metrics, predictions
-from src.artifacts import save_json_atomic
+from src.artifacts import load_json, save_json_atomic
 
 
 def _eval_master_file(items: list, out_path: Path, reference: dict) -> None:
@@ -53,7 +52,7 @@ def main() -> None:
     args = parser.parse_args()
     cfg = config.load_config(args.config)
     path = config.prepare_output_dir(cfg) / "predictions.json"
-    _eval_master_file(json.loads(path.read_text()), path, cfg["reference"])
+    _eval_master_file(load_json(path), path, cfg["reference"])
 
 
 if __name__ == "__main__":

@@ -6,6 +6,25 @@ information from parents of newborns before a physician takes over. Given the
 conversation history, the assistant should ask relevant questions without offering
 medical advice or diagnoses.
 
+## Scope and safety
+
+This repository contains research code, prompts, and evaluation settings for a
+medical-dialogue intake assistant. It is **not** a clinical product and must not
+be used for diagnosis, triage decisions, medical advice, or autonomous patient
+care. The assistant prompt explicitly instructs the model to collect information
+only and to defer medical decisions to qualified professionals. Human review by
+qualified clinicians is required before any real-world or patient-facing use.
+
+The dataset consists of sensitive Serbian call-center conversations and is not
+currently public. Handle any local copy of `dataset/`, `data/`, `experiments/`,
+and generated artifacts as sensitive data; do not commit them.
+
+## License
+
+No repository license file is included at the time of this audit. Before reuse,
+redistribution, or downstream deployment, confirm the rights and permissions for
+the code, prompts, model weights referenced by configs, and any private dataset.
+
 ## Experiments
 
 The dataset consists of Serbian call-center conversations, with recorded nurse
@@ -103,8 +122,10 @@ a CUDA training environment, and a local Ollama server for Qwen3.5-122B and the
 for the judge. Training logs to W&B; authenticate or set `report_to: none` in the
 training configs.
 
-Install dependencies, authenticate with Hugging Face after obtaining model access,
-and download the Ollama models:
+Install dependencies in an isolated environment (virtualenv/conda) after reviewing
+the version ranges in `requirements.txt`. Pinning exact versions in a lock file is
+recommended for reproducible runs. Authenticate with Hugging Face after obtaining
+model access, and download the Ollama models:
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -114,8 +135,10 @@ ollama pull gemma3:27b-it-qat
 ```
 
 Place the conversations in `dataset/json_ser/` and start Ollama with
-`ollama serve`. [run.sh](run.sh) runs data preparation, all configured training
-and generation runs, and joint evaluation:
+`ollama serve`. Local Ollama endpoints are hardcoded to `127.0.0.1` in code; if
+your setup differs, update the endpoint in source/config consistently.
+[run.sh](run.sh) runs data preparation, all configured training and generation
+runs, and joint evaluation:
 
 ```bash
 bash run.sh
@@ -132,3 +155,10 @@ bash run.sh sft/1b
 Outputs are saved under `experiments/`, with joint metrics in `experiments/eval/`.
 Training resumes from saved checkpoints. Use a new `output_dir` when changing
 configs or prompts.
+
+## Verification status
+
+Local static checks in this audit verified Python syntax (`python -m py_compile`)
+for modified modules and `src.artifacts` import in the local environment. End-to-end
+runs were **not** executed here because the private dataset, CUDA training stack,
+Ollama models, and heavyweight ML dependencies were unavailable.
